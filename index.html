@@ -1,0 +1,20 @@
+<html>
+	<head>
+		<script src="javascript/palette.js/palette.js"></script>
+		<script src="javascript/sort.js"></script>
+	</head>
+	<body onload="initialize()">
+		<form>
+			<input type="radio" name="sort" id="bubbleSort">Bubble Sort</input>
+			<input type="radio" name="sort" id="cocktailSort" checked>Cocktail Sort</input>
+		</form>
+		<h2>Counter :: <span id="counter_value">0</span></h2>
+		<p>
+			<canvas id='canvas' width="500" height="500">
+			</canvas>
+			<button id="sort" onClick="sort()">
+				Sort
+			</button>
+		</p>
+	</body>
+</html>
