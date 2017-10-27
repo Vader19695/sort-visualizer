@@ -1,64 +1,10 @@
-var N = 250; 
+//Global Vars
+var N = 50; 
+var counter = 0;
 var numbers=Array.apply(null, {length: N}).map(Number.call, Number);
 var colors=palette('tol-rainbow', N);
 var color_array=[];
 var sort_status=false;
-
-class Row {
-	constructor(colors, row_number) {
-		this.rowNumber=row_number;
-		this.updateVisual = false;
-		this.array = colors.slice(0); 
-  	}
-
-	cocktail_sort() {
-				var swapped = false
-				for (var i = 0; i < this.array.length - 2; i++) {
-					if (this.array[i] > this.array[i + 1]) {
-						this.swap(i, i + 1);
-						swapped=true;
-					//	updateVisual();
-					}
-				}
-			if(swapped){
-				for (let i = this.array.length - 2; i > 0; i--) {
-					if (this.array[i] > this.array[i + 1]) {
-						this.swap(i, i + 1);
-						swapped=true;
-					//	updateVisual();
-					}
-				}
-			}
-	//	updateVisual();
-		//console.log("Array "+this.rowNumber+" :: "+swapped);
-	}
-
-	bubble_sort(){
-		var swapped = false
-		for (var i = 0; i < this.array.length - 1; i++) {
-			if (this.array[i] > this.array[i + 1]) {
-				this.swap(i, i + 1);
-				swapped=true;
-			}
-		}
-	}
-
-	swap(index1, index2) {
-		var number1 = this.array[index1];
-		var number2 = this.array[index2];
-		this.array[index1] = number2;
-		this.array[index2] = number1;
-		this.updateVisual=true;
-		updateSquares(index1, index2, this.rowNumber);
-	}
-  
-	getArray(){
-		return this.array;
-	}
-	getRowNumber(){
-		return this.rowNumber;
-	}
-}
 
 function initialize(){
 	for(i=0; i<N; i++)
@@ -66,6 +12,19 @@ function initialize(){
 		color_array.push(new Row(shuffle(numbers), i));
 	}
 	updateVisual();
+}
+
+function updateRender(number){
+	if(number){	
+		N=number;
+	}
+	numbers=Array.apply(null, {length: N}).map(Number.call, Number);
+	colors=palette('tol-rainbow', N);
+	color_array=[];
+	counter=0;
+	document.getElementById("counter_value").innerHTML=counter;
+	document.getElementById("sort").disabled=false;
+	initialize();
 }
 
 function shuffle(array1) {
@@ -80,16 +39,13 @@ function shuffle(array1) {
 
 function checkUpdate(){
 	var update=false;
-	//console.log("Checking update!");
 	for(var i=0; i<N; i++){
 		if(color_array[i].updateVisual){
 			update=true;
-	//		console.log("Array "+i+" updated!");
 		}
 	}
+	updateVisual();
 	if(update){
-	//	console.log("Updating!");
-	//	updateVisual();
 		for(var i=0; i<N; i++){
 			color_array[i].updateVisual=false;
 		}
@@ -102,12 +58,12 @@ function updateVisual() {
 	var ctx = canvas.getContext('2d');
 		for (var x = 0, i = 0; i < N; x += ((canvas.width-10)/N), i++) {
 			for (var y = 0, j = 0; j < N; y += ((canvas.height-10)/N), j++) {
-				//ctx.beginPath();
-				drawSquare(ctx, i, j,x,y, ((canvas.width-10)/N), ((canvas.height-10)/N));
-				//ctx.rect(x, y,((canvas.width-10)/N), ((canvas.height-10)/N) );
-				//ctx.fillStyle = colors[color_array[j].getArray()[i]];
+				ctx.beginPath();
+				//drawSquare(ctx, i, j,x,y, ((canvas.width-10)/N), ((canvas.height-10)/N));
+				ctx.rect(x, y,((canvas.width-10)/N), ((canvas.height-10)/N) );
+				ctx.fillStyle = '#'+colors[color_array[j].getArray()[i]];
 			//	ctx.fillStyle = "rgb(50,50,255)";
-				//ctx.fill();
+				ctx.fill();
 			}
 	}
 }
@@ -115,12 +71,12 @@ function updateVisual() {
 function drawSquare(ctx, i, j, x, y, width, height){
 		ctx.beginPath();
 		ctx.rect(x, y, width, height);
-		ctx.fillStyle = colors[color_array[j].getArray()[i]];
-	//	ctx.fillStyle = "rgb(50,50,255)";
+		ctx.fillStyle = colors[color_array[i].getArray()[j]];
 		ctx.fill();
 		ctx.closePath();
 }
 
+/*
 function updateSquares(square1, square2, row){
 	var canvas=document.getElementById('canvas');
 	var ctx = canvas.getContext('2d');
@@ -129,7 +85,7 @@ function updateSquares(square1, square2, row){
 	drawSquare(ctx, square1, row, (square1*width), (row*height), width, height);
 	drawSquare(ctx, square2, row, (square2*width), (row*height), width, height);
 }	
-
+//*/
 function setIntervalWrapper(callback, time) {
 	  var args = Array.prototype.slice.call(arguments, 1);
 	    args[0] = setInterval(function() {
@@ -138,24 +94,23 @@ function setIntervalWrapper(callback, time) {
 }
 
 function sort(){
-//	console.log("Setting up interval!");
 	if((3600/N)<500){
 		time=500
 	}
 	else{
 		time=3600/N
 	}
-	var counter = 0;
+	document.getElementById("renderButton").disabled=true;
 	setIntervalWrapper(function(handle, arg1, arg2) {
 		document.getElementById("sort").disabled=true;
 		counter++;
 		document.getElementById("counter_value").innerHTML=counter;
-//		console.log("Interval callback called, handle is " + handle + ". Currently at :: "+counter+" iterations.");
 		if (!sort_status && counter>0) {
 			clearInterval(handle);
+			document.getElementById("renderButton").disabled=false;
+			updateVisual();
 		}
 	}, time);
-//	sort2();
 }
 
 function sort2(){
@@ -167,7 +122,16 @@ function sort2(){
 	}
 	else if(document.getElementById("cocktailSort").checked){
 		for(var i=0; i < N; i++){
-			color_array[i].cocktail_sort()
+			color_array[i].cocktail_sort();
+		}
+	}
+	else if(document.getElementById("insertionSort").checked){
+		var i=Array.apply(null, Array(N)).map(Number.prototype.valueOf,1);
+		var j=Array.apply(null, Array(N)).map(Number.prototype.valueOf,1);
+		for(var k=0; k<N; k++){
+			temp=color_array[k].insertion_sort(i[k], j[k]);
+			i[k]=temp[0];
+			j[k]=temp[1];
 		}
 	}
 	else{
