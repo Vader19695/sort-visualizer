@@ -95,7 +95,7 @@ function setIntervalWrapper(callback, time) {
 
 function sort(){
 	if((3600/N)<500){
-		time=500
+		time=100
 	}
 	else{
 		time=3600/N
